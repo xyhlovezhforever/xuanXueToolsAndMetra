@@ -8,6 +8,7 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 import { expandedReferences } from './expandedData'
+import { encyclopediaReferences } from './encyclopediaData'
 
 export type CategoryId = 'all' | 'foundation' | 'fengshui' | 'bazi' | 'ziwei' | 'divination' | 'sanshi' | 'zeri' | 'xiangfa' | 'naming' | 'classics' | 'western' | 'practice'
 
@@ -318,6 +319,7 @@ export const references: ReferenceEntry[] = [
     ],
   },
   ...expandedReferences,
+  ...encyclopediaReferences,
 ]
 
 export const toolCatalog = [

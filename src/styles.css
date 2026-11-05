@@ -137,6 +137,9 @@ p { text-wrap: pretty; }
 .library-intro h1, .tools-intro h1 { margin-bottom: 12px; font-size: 36px; line-height: 40px; font-weight: 600; letter-spacing: 0; }
 .library-intro p:last-child { margin-bottom: 0; max-width: 680px; color: #cbd2cb; font-size: 16px; line-height: 24px; }
 .library-intro img { width: 256px; height: 144px; object-fit: cover; border-radius: 4px; opacity: 0.9; }
+.library-coverage { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
+.library-coverage span { padding: 8px 12px; border: 1px solid #566057; border-radius: 4px; background: #29302a; color: #cbd2cb; font-size: 12px; line-height: 16px; }
+.library-coverage b { margin-right: 4px; color: #ffffff; font-size: 14px; }
 
 .filter-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
 .filter-label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; line-height: 20px; }

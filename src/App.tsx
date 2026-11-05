@@ -140,7 +140,7 @@ function App() {
     return references.filter((entry) => {
       const inCategory = category === 'all' || entry.category === category
       const atLevel = level === '全部' || entry.level === level
-      const haystack = [entry.title, entry.summary, entry.source, entry.school, ...entry.tags].join(' ').toLowerCase()
+      const haystack = [entry.title, entry.summary, entry.source, entry.school, ...entry.tags, ...entry.sections.flatMap((section) => [section.heading, section.body])].join(' ').toLowerCase()
       return inCategory && atLevel && (!needle || haystack.includes(needle))
     })
   }, [category, level, query])
@@ -357,6 +357,11 @@ function LibraryView({ category, level, setLevel, setQuery, entries, bookmarks, 
           <p className="eyebrow">知识索引 · 可核查资料</p>
           <h1>{currentCategory.label}</h1>
           <p>先区分流派与适用范围，再把典籍、口诀和盘面证据放到同一条推理链中。</p>
+          <div className="library-coverage" aria-label="知识库覆盖范围">
+            <span><b>{references.length}</b> 个专题</span>
+            <span><b>{categories.length - 1}</b> 个门类</span>
+            <span><b>全文</b> 可检索</span>
+          </div>
         </div>
         <img src="/cosmos-map.svg" alt="九宫与八卦参考图" />
       </section>

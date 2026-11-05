@@ -7,6 +7,7 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
   await page.goto('/')
   await expect(page).toHaveTitle(/玄枢/)
   await expect(page.getByRole('heading', { name: '全部资料' })).toBeVisible()
+  await expect(page.getByText('168 个专题')).toBeVisible()
   if (testInfo.project.name === 'desktop') {
     await expect(page.getByText('引擎计算')).toBeVisible({ timeout: 10_000 })
   }
@@ -23,6 +24,10 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
   await expect(page.locator('.right-rail')).toHaveCount(0)
   await page.getByRole('button', { name: '返回资料库' }).click()
   await expect(page.getByRole('heading', { name: '全部资料' })).toBeVisible()
+  await search.fill('')
+
+  await search.fill('节气发生在精确时刻')
+  await expect(page.getByRole('heading', { name: '二十四节气与月建' })).toBeVisible()
   await search.fill('')
 
   if (testInfo.project.name === 'mobile') {
