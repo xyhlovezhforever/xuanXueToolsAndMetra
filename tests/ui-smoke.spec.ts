@@ -16,6 +16,8 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
   await expect(page.getByRole('heading', { name: '六爻用神取用' })).toBeVisible()
   await page.getByRole('heading', { name: '六爻用神取用' }).click()
   await expect(page.getByRole('dialog').getByRole('heading', { name: '六爻用神取用' })).toBeVisible()
+  await expect(page.getByRole('dialog').getByRole('heading', { name: '一个合格问题包含什么' })).toBeAttached()
+  await expect(page.getByRole('dialog').getByText('按问题主题选取的核心六亲或象。')).toBeAttached()
   await page.getByRole('button', { name: '返回资料库' }).click()
   await search.fill('')
 

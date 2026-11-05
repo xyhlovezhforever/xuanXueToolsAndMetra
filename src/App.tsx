@@ -19,6 +19,7 @@ import {
   X,
 } from '@phosphor-icons/react'
 import { categories, references, toolCatalog, type CategoryId, type ReferenceEntry } from './data'
+import { knowledgePacks, type KnowledgeBlock } from './knowledgePacks'
 import TablesView from './TablesView'
 
 type View = 'library' | 'tables' | 'tools'
@@ -615,6 +616,9 @@ function EntryDrawer({ entry, bookmarked, onBookmark, onClose }: {
   onBookmark: () => void
   onClose: () => void
 }) {
+  const pack = knowledgePacks[entry.category]
+  const sectionCount = entry.sections.length + pack.blocks.length + 2
+  const detailedReadTime = entry.readTime + pack.blocks.length * 3
   return (
     <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
       <article className="entry-drawer" role="dialog" aria-modal="true" aria-labelledby="entry-title">
@@ -623,18 +627,64 @@ function EntryDrawer({ entry, bookmarked, onBookmark, onClose }: {
           <button className="icon-button" type="button" onClick={onBookmark} aria-label={bookmarked ? '取消收藏' : '收藏资料'}><BookmarkSimple size={20} weight={bookmarked ? 'fill' : 'regular'} /></button>
         </div>
         <header>
-          <p className="eyebrow">{entry.school} · {entry.level} · {entry.readTime} 分钟</p>
+          <p className="eyebrow">{entry.school} · {entry.level} · 深度资料</p>
           <h1 id="entry-title">{entry.title}</h1>
           <p>{entry.summary}</p>
           <div className="tag-row">{entry.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+          <div className="article-metrics"><span>{sectionCount} 个章节</span><span>约 {detailedReadTime} 分钟</span><span>{pack.references.length + 1} 组参考来源</span></div>
         </header>
-        <div className="source-box"><b>参考来源</b><span>{entry.source}</span><small>不同版本与传承可能存在术语差异，引用时请核对原文。</small></div>
+        <div className="source-box"><b>条目来源</b><span>{entry.source}</span><small>不同版本与传承可能存在术语差异，引用时请核对原文。</small></div>
+
+        <section className="knowledge-overview">
+          <p className="eyebrow">{pack.label}</p>
+          <h2>先建立完整坐标，再进入单项判断</h2>
+          <p>{pack.overview}</p>
+        </section>
+
+        <nav className="article-index" aria-label="文章目录">
+          <b>本页目录</b>
+          <div>
+            {entry.sections.map((section, index) => <a key={section.heading} href={`#entry-section-${index}`}>{String(index + 1).padStart(2, '0')} {section.heading}</a>)}
+            <a href="#entry-terms">{String(entry.sections.length + 1).padStart(2, '0')} 核心术语</a>
+            {pack.blocks.map((block, index) => <a key={block.heading} href={`#knowledge-section-${index}`}>{String(entry.sections.length + index + 2).padStart(2, '0')} {block.heading}</a>)}
+            <a href="#entry-references">{String(sectionCount).padStart(2, '0')} 参考书目</a>
+          </div>
+        </nav>
+
         <div className="entry-sections">
-          {entry.sections.map((section, index) => <section key={section.heading}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{section.heading}</h2><p>{section.body}</p></div></section>)}
+          {entry.sections.map((section, index) => <section id={`entry-section-${index}`} key={section.heading}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{section.heading}</h2><p>{section.body}</p></div></section>)}
         </div>
+
+        <section className="terms-section" id="entry-terms">
+          <div className="article-section-heading"><span>{String(entry.sections.length + 1).padStart(2, '0')}</span><div><p className="eyebrow">术语表</p><h2>先把关键词说清楚</h2></div></div>
+          <dl>{pack.terms.map(([term, description]) => <div key={term}><dt>{term}</dt><dd>{description}</dd></div>)}</dl>
+        </section>
+
+        <div className="deep-sections">
+          {pack.blocks.map((block, index) => <KnowledgeBlockView key={block.heading} block={block} index={entry.sections.length + index + 2} id={`knowledge-section-${index}`} />)}
+        </div>
+
+        <section className="reference-list" id="entry-references">
+          <div className="article-section-heading"><span>{String(sectionCount).padStart(2, '0')}</span><div><p className="eyebrow">延伸阅读</p><h2>参考书目与资料来源</h2></div></div>
+          <ol><li>{entry.source}</li>{pack.references.map((reference) => <li key={reference}>{reference}</li>)}</ol>
+          <p>书名只提供检索线索。正式引用时应补充版本、卷次、页码或稳定链接。</p>
+        </section>
         <aside className="entry-boundary"><b>使用边界</b><p>本条目用于学习、检索和咨询记录，不构成确定性预测。涉及健康、安全、法律与重大财务决策时，应优先采用相应专业意见。</p></aside>
       </article>
     </div>
+  )
+}
+
+function KnowledgeBlockView({ block, index, id }: { block: KnowledgeBlock; index: number; id: string }) {
+  return (
+    <section className="deep-section" id={id}>
+      <div className="article-section-heading"><span>{String(index).padStart(2, '0')}</span><div><p className="eyebrow">体系详解</p><h2>{block.heading}</h2></div></div>
+      {block.paragraphs && <div className="deep-copy">{block.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>}
+      {block.bullets && <ul className="knowledge-list">{block.bullets.map((item) => <li key={item}>{item}</li>)}</ul>}
+      {block.table && <div className="knowledge-table-wrap"><table className="knowledge-table"><thead><tr>{block.table.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead><tbody>{block.table.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={`${cell}-${cellIndex}`}>{cell}</td>)}</tr>)}</tbody></table></div>}
+      {block.example && <aside className="knowledge-example"><b>{block.example.title}</b><p>{block.example.body}</p></aside>}
+      {block.caution && <aside className="knowledge-caution"><b>校验提醒</b><p>{block.caution}</p></aside>}
+    </section>
   )
 }
 
