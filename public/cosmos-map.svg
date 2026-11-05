@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440" role="img" aria-labelledby="title desc">
+  <title id="title">九宫与八卦参考图</title>
+  <desc id="desc">以同心圆、方位线和八卦符号组成的资料库视觉图形</desc>
+  <rect width="720" height="440" rx="12" fill="#20251f"/>
+  <g opacity=".12" stroke="#f4f5f1" fill="none">
+    <path d="M0 110h720M0 220h720M0 330h720M180 0v440M360 0v440M540 0v440"/>
+    <circle cx="360" cy="220" r="176"/>
+    <circle cx="360" cy="220" r="118"/>
+    <circle cx="360" cy="220" r="64"/>
+    <path d="m360 44 124 52 52 124-52 124-124 52-124-52-52-124 52-124Z"/>
+  </g>
+  <g fill="#f4f5f1" font-family="serif" font-size="28" text-anchor="middle">
+    <text x="360" y="38">乾</text><text x="518" y="76">兑</text>
+    <text x="604" y="230">离</text><text x="518" y="386">震</text>
+    <text x="360" y="426">巽</text><text x="202" y="386">坎</text>
+    <text x="116" y="230">艮</text><text x="202" y="76">坤</text>
+  </g>
+  <g transform="translate(360 220)">
+    <path d="M0-64a64 64 0 0 1 0 128 32 32 0 0 1 0-64 32 32 0 0 0 0-64Z" fill="#e9b44c"/>
+    <path d="M0-64a64 64 0 0 0 0 128 32 32 0 0 1 0-64 32 32 0 0 0 0-64Z" fill="#d45243"/>
+    <circle cy="-32" r="8" fill="#d45243"/>
+    <circle cy="32" r="8" fill="#e9b44c"/>
+  </g>
+  <g fill="#7fb5a0" font-family="sans-serif" font-size="13" letter-spacing="2" text-anchor="middle">
+    <text x="360" y="108">理象数占</text>
+    <text x="360" y="342">时空人事</text>
+  </g>
+</svg>
