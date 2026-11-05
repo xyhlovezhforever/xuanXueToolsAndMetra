@@ -23,8 +23,9 @@ import { categories, references, toolCatalog, type CategoryId, type ReferenceEnt
 import { knowledgePacks, type KnowledgeBlock } from './knowledgePacks'
 import TablesView from './TablesView'
 import KnowledgeAtlas from './KnowledgeAtlas'
+import BooksView from './BooksView'
 
-type View = 'library' | 'atlas' | 'tables' | 'tools'
+type View = 'library' | 'atlas' | 'books' | 'tables' | 'tools'
 type LegalDocument = 'privacy' | 'terms' | null
 type ToolId = string
 
@@ -228,6 +229,8 @@ function App() {
               />
             ) : view === 'atlas' ? (
               <KnowledgeAtlas onExplore={exploreCategory} />
+            ) : view === 'books' ? (
+              <BooksView />
             ) : view === 'tables' ? (
               <TablesView />
             ) : (
@@ -294,6 +297,9 @@ function Header({ view, setView, query, setQuery, searchRef, dark, setDark, mobi
         </button>
         <button className={view === 'atlas' ? 'active' : ''} onClick={() => setView('atlas')} type="button">
           <Books size={17} />全典总纲
+        </button>
+        <button className={view === 'books' ? 'active' : ''} onClick={() => setView('books')} type="button">
+          <BookOpenText size={17} />典籍全文
         </button>
         <button className={view === 'tables' ? 'active' : ''} onClick={() => setView('tables')} type="button">
           <Table size={17} />术数查表
@@ -770,6 +776,7 @@ function MobileMenu({ category, onSelect, close, view, setView }: {
       <div className="mobile-view-switch">
         <button className={view === 'library' ? 'active' : ''} onClick={() => setView('library')} type="button">资料库</button>
         <button className={view === 'atlas' ? 'active' : ''} onClick={() => setView('atlas')} type="button">全典总纲</button>
+        <button className={view === 'books' ? 'active' : ''} onClick={() => setView('books')} type="button">典籍全文</button>
         <button className={view === 'tables' ? 'active' : ''} onClick={() => setView('tables')} type="button">术数查表</button>
         <button className={view === 'tools' ? 'active' : ''} onClick={() => setView('tools')} type="button">排盘工具</button>
       </div>

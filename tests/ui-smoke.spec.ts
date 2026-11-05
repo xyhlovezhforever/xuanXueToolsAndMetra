@@ -43,6 +43,17 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
 
   if (testInfo.project.name === 'mobile') {
     await page.getByRole('button', { name: '打开导航' }).click()
+    await page.getByRole('dialog', { name: '移动导航' }).getByRole('button', { name: '典籍全文' }).click()
+  } else {
+    await page.getByRole('button', { name: '典籍全文' }).click()
+  }
+  await expect(page.getByRole('heading', { name: '典籍全文库' })).toBeVisible()
+  await expect(page.getByText('26部核心典籍')).toBeVisible()
+  await page.getByPlaceholder('搜索书名、作者、朝代或内容主题').fill('滴天髓')
+  await expect(page.getByRole('heading', { name: '滴天髓' })).toBeVisible()
+
+  if (testInfo.project.name === 'mobile') {
+    await page.getByRole('button', { name: '打开导航' }).click()
     await expect(page.getByRole('dialog', { name: '移动导航' })).toBeVisible()
     await page.getByRole('dialog', { name: '移动导航' }).getByRole('button', { name: '术数查表' }).click()
   } else {
