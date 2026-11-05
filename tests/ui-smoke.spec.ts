@@ -48,9 +48,9 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
     await page.getByRole('button', { name: '典籍全文' }).click()
   }
   await expect(page.getByRole('heading', { name: '典籍全文库' })).toBeVisible()
-  await expect(page.getByText('26部核心典籍')).toBeVisible()
+  await expect(page.getByText(/\d+部公版文献/)).toBeVisible()
   await page.getByPlaceholder('搜索书名、作者、朝代或内容主题').fill('滴天髓')
-  await expect(page.getByRole('heading', { name: '滴天髓' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '滴天髓', exact: true })).toBeVisible()
 
   if (testInfo.project.name === 'mobile') {
     await page.getByRole('button', { name: '打开导航' }).click()

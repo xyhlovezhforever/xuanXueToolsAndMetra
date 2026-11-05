@@ -12,6 +12,7 @@ interface BookRecord {
   sourceUrl: string
   license: string
   sourceTitle?: string
+  status?: string
 }
 
 interface BookText {
@@ -124,7 +125,7 @@ export default function BooksView() {
 
   return (
     <section className="books-view">
-      <header className="books-intro"><div><p className="eyebrow">公版原典 · 合法来源</p><h1>典籍全文库</h1><p>古籍全文按需载入并缓存；现代版权书只建立书目和合法来源，不复制网络盗版。</p></div><div><b>{books.length || 26}</b><span>部核心典籍</span></div></header>
+      <header className="books-intro"><div><p className="eyebrow">公版原典 · 合法来源</p><h1>典籍全文库</h1><p>古籍全文按需载入并缓存；现代版权书只建立书目和合法来源，不复制网络盗版。</p></div><div><b>{books.length || 77}</b><span>部公版文献</span></div></header>
       <div className="books-toolbar">
         <div className="books-search-row"><label><MagnifyingGlass size={18} /><input value={query} onChange={(event) => { setQuery(event.target.value); setSourceResults([]) }} placeholder="搜索书名、作者、朝代或内容主题" />{query && <button type="button" onClick={() => { setQuery(''); setSourceResults([]) }} aria-label="清除典籍搜索"><X size={16} /></button>}</label><button type="button" onClick={searchPublicSource} disabled={sourceSearching}>{sourceSearching ? '正在检索' : '搜索公开书库'}</button></div>
         <div className="books-categories">{categories.map((item) => <button type="button" className={category === item ? 'active' : ''} onClick={() => setCategory(item)} key={item}>{item}</button>)}</div>
@@ -132,7 +133,7 @@ export default function BooksView() {
       {error && <p className="books-catalog-error" role="alert">{error}</p>}
       <div className="books-result"><span>{filtered.length} 部</span><p>点击典籍可读取公开来源正文，并保留作者、时代与来源信息。</p></div>
       <div className="books-grid">
-        {filtered.map((book) => <article key={book.id}><div className="book-spine"><BookOpenText size={20} /><span>{book.category}</span></div><div><p>{book.era} · {book.author}</p><h2>{book.title}</h2><p>{book.summary}</p><button type="button" onClick={() => loadBook(book)}>载入公版全文 <ArrowSquareOut size={16} /></button></div></article>)}
+        {filtered.map((book) => <article key={book.id}><div className="book-spine"><BookOpenText size={20} /><span>{book.category}</span></div><div><p>{book.era} · {book.author}</p><h2>{book.title}</h2><p>{book.summary}</p>{book.status === 'public-domain-scan' ? <a className="book-scan-link" href={book.sourceUrl} target="_blank" rel="noreferrer">查看公开扫描 <ArrowSquareOut size={16} /></a> : <button type="button" onClick={() => loadBook(book)}>载入公版全文 <ArrowSquareOut size={16} /></button>}</div></article>)}
       </div>
       {sourceResults.length > 0 && <section className="source-results"><div><p className="eyebrow">维基文库</p><h2>公开书库检索结果</h2></div><div>{sourceResults.map((result) => <article key={result.title}><div><h3>{result.title}</h3><p>{result.wordCount?.toLocaleString() || '未知'} 字</p></div><button type="button" onClick={() => loadSourceResult(result)}>站内读取 <BookOpenText size={16} /></button></article>)}</div></section>}
     </section>

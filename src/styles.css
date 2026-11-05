@@ -376,6 +376,8 @@ p { text-wrap: pretty; }
 .books-grid h2 + p { flex: 1; margin: 0 0 16px; color: var(--muted); font-size: 14px; line-height: 20px; }
 .books-grid article button { min-height: 40px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--surface-muted); display: flex; align-items: center; justify-content: space-between; font-size: 14px; line-height: 20px; font-weight: 600; cursor: pointer; }
 .books-grid article button:hover { border-color: var(--jade); color: var(--jade); }
+.book-scan-link { min-height: 40px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--surface-muted); color: var(--text); display: flex; align-items: center; justify-content: space-between; font-size: 14px; line-height: 20px; font-weight: 600; text-decoration: none; }
+.book-scan-link:hover { border-color: var(--jade); color: var(--jade); }
 .book-reader-actions { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
 .book-reader-actions button, .book-reader-actions a { border: 0; padding: 8px 0; background: transparent; color: var(--muted); display: flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer; }
 .book-reader-actions a:hover, .book-reader-actions button:hover { color: var(--red); }

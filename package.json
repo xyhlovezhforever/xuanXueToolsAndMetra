@@ -7,6 +7,7 @@
     "dev": "concurrently -k \"vite --host 0.0.0.0\" \"node --watch server.mjs\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "sync:books": "node scripts/sync-public-books.mjs",
     "test:ui": "playwright test",
     "start": "node server.mjs"
   },
