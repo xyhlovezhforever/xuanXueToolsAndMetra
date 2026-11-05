@@ -5,6 +5,7 @@ import {
   BookmarkSimple,
   BookOpenText,
   CalendarBlank,
+  Books,
   CheckCircle,
   ClockCounterClockwise,
   Compass,
@@ -21,8 +22,9 @@ import {
 import { categories, references, toolCatalog, type CategoryId, type ReferenceEntry } from './data'
 import { knowledgePacks, type KnowledgeBlock } from './knowledgePacks'
 import TablesView from './TablesView'
+import KnowledgeAtlas from './KnowledgeAtlas'
 
-type View = 'library' | 'tables' | 'tools'
+type View = 'library' | 'atlas' | 'tables' | 'tools'
 type LegalDocument = 'privacy' | 'terms' | null
 type ToolId = string
 
@@ -181,6 +183,11 @@ function App() {
     setView('library')
   }
 
+  const exploreCategory = (id: CategoryId) => {
+    setCategory(id)
+    changeView('library')
+  }
+
   return (
     <div className="app-shell">
       <Header
@@ -219,6 +226,8 @@ function App() {
                 onOpen={openEntry}
                 onBookmark={toggleBookmark}
               />
+            ) : view === 'atlas' ? (
+              <KnowledgeAtlas onExplore={exploreCategory} />
             ) : view === 'tables' ? (
               <TablesView />
             ) : (
@@ -282,6 +291,9 @@ function Header({ view, setView, query, setQuery, searchRef, dark, setDark, mobi
       <div className="view-switch" aria-label="工作区切换">
         <button className={view === 'library' ? 'active' : ''} onClick={() => setView('library')} type="button">
           <BookOpenText size={17} />资料库
+        </button>
+        <button className={view === 'atlas' ? 'active' : ''} onClick={() => setView('atlas')} type="button">
+          <Books size={17} />全典总纲
         </button>
         <button className={view === 'tables' ? 'active' : ''} onClick={() => setView('tables')} type="button">
           <Table size={17} />术数查表
@@ -757,6 +769,7 @@ function MobileMenu({ category, onSelect, close, view, setView }: {
       <div className="mobile-menu-header"><span>玄枢导航</span><button className="icon-button" type="button" onClick={close} aria-label="关闭导航"><X size={20} /></button></div>
       <div className="mobile-view-switch">
         <button className={view === 'library' ? 'active' : ''} onClick={() => setView('library')} type="button">资料库</button>
+        <button className={view === 'atlas' ? 'active' : ''} onClick={() => setView('atlas')} type="button">全典总纲</button>
         <button className={view === 'tables' ? 'active' : ''} onClick={() => setView('tables')} type="button">术数查表</button>
         <button className={view === 'tools' ? 'active' : ''} onClick={() => setView('tools')} type="button">排盘工具</button>
       </div>

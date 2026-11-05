@@ -32,6 +32,17 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
 
   if (testInfo.project.name === 'mobile') {
     await page.getByRole('button', { name: '打开导航' }).click()
+    await page.getByRole('dialog', { name: '移动导航' }).getByRole('button', { name: '全典总纲' }).click()
+  } else {
+    await page.getByRole('button', { name: '全典总纲' }).click()
+  }
+  await expect(page.getByRole('heading', { name: '全典不是一句“都有”，而是每一项都能找到' })).toBeVisible()
+  await expect(page.getByText('十五个本地排盘引擎')).toBeVisible()
+  await page.getByRole('button', { name: /进入该体系/ }).first().click()
+  await expect(page.getByRole('heading', { name: '易学基础' })).toBeVisible()
+
+  if (testInfo.project.name === 'mobile') {
+    await page.getByRole('button', { name: '打开导航' }).click()
     await expect(page.getByRole('dialog', { name: '移动导航' })).toBeVisible()
     await page.getByRole('dialog', { name: '移动导航' }).getByRole('button', { name: '术数查表' }).click()
   } else {
