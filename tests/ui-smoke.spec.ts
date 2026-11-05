@@ -15,10 +15,14 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
   await search.fill('六爻')
   await expect(page.getByRole('heading', { name: '六爻用神取用' })).toBeVisible()
   await page.getByRole('heading', { name: '六爻用神取用' }).click()
-  await expect(page.getByRole('dialog').getByRole('heading', { name: '六爻用神取用' })).toBeVisible()
-  await expect(page.getByRole('dialog').getByRole('heading', { name: '一个合格问题包含什么' })).toBeAttached()
-  await expect(page.getByRole('dialog').getByText('按问题主题选取的核心六亲或象。')).toBeAttached()
+  await expect(page).toHaveURL(/#\/article\/liuyao-yongshen/)
+  await expect(page.getByRole('main').getByRole('heading', { name: '六爻用神取用' })).toBeVisible()
+  await expect(page.getByRole('main').getByRole('heading', { name: '一个合格问题包含什么' })).toBeAttached()
+  await expect(page.getByRole('main').getByText('按问题主题选取的核心六亲或象。')).toBeAttached()
+  await expect(page.locator('.sidebar')).toHaveCount(0)
+  await expect(page.locator('.right-rail')).toHaveCount(0)
   await page.getByRole('button', { name: '返回资料库' }).click()
+  await expect(page.getByRole('heading', { name: '全部资料' })).toBeVisible()
   await search.fill('')
 
   if (testInfo.project.name === 'mobile') {

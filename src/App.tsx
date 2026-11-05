@@ -90,7 +90,10 @@ function App() {
   const [category, setCategory] = useState<CategoryId>('all')
   const [level, setLevel] = useState<(typeof levelOptions)[number]>('全部')
   const [query, setQuery] = useState('')
-  const [selectedEntry, setSelectedEntry] = useState<ReferenceEntry | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<ReferenceEntry | null>(() => {
+    const match = window.location.hash.match(/^#\/article\/([^/]+)$/)
+    return match ? references.find((entry) => entry.id === decodeURIComponent(match[1])) ?? null : null
+  })
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dark, setDark] = useState(false)
   const [legal, setLegal] = useState<LegalDocument>(null)
@@ -103,13 +106,27 @@ function App() {
   }, [dark])
 
   useEffect(() => {
+    const syncArticleFromUrl = () => {
+      const match = window.location.hash.match(/^#\/article\/([^/]+)$/)
+      const entry = match ? references.find((item) => item.id === decodeURIComponent(match[1])) ?? null : null
+      setSelectedEntry(entry)
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
+    window.addEventListener('popstate', syncArticleFromUrl)
+    window.addEventListener('hashchange', syncArticleFromUrl)
+    return () => {
+      window.removeEventListener('popstate', syncArticleFromUrl)
+      window.removeEventListener('hashchange', syncArticleFromUrl)
+    }
+  }, [])
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
         searchRef.current?.focus()
       }
       if (event.key === 'Escape') {
-        setSelectedEntry(null)
         setMobileOpen(false)
         setLegal(null)
       }
@@ -131,6 +148,27 @@ function App() {
   const openEntry = (entry: ReferenceEntry) => {
     setSelectedEntry(entry)
     setRecent((current) => [entry.id, ...current.filter((id) => id !== entry.id)].slice(0, 6))
+    window.history.pushState({ ...window.history.state, xuanshuArticle: true }, '', `#/article/${encodeURIComponent(entry.id)}`)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }
+
+  const closeEntry = () => {
+    if (window.history.state?.xuanshuArticle) {
+      window.history.back()
+      return
+    }
+    window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}`)
+    setSelectedEntry(null)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }
+
+  const changeView = (nextView: View) => {
+    if (selectedEntry) {
+      window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}`)
+      setSelectedEntry(null)
+    }
+    setView(nextView)
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   const toggleBookmark = (entryId: string) => {
@@ -147,7 +185,7 @@ function App() {
     <div className="app-shell">
       <Header
         view={view}
-        setView={setView}
+        setView={changeView}
         query={query}
         setQuery={setQuery}
         searchRef={searchRef}
@@ -158,33 +196,42 @@ function App() {
         bookmarkCount={bookmarks.length}
       />
 
-      <div className="workspace">
-        <Sidebar category={category} onSelect={selectCategory} recent={recent} onOpen={openEntry} />
+      {selectedEntry ? (
+        <ArticlePage
+          entry={selectedEntry}
+          bookmarked={bookmarks.includes(selectedEntry.id)}
+          onBookmark={() => toggleBookmark(selectedEntry.id)}
+          onClose={closeEntry}
+        />
+      ) : (
+        <div className="workspace">
+          <Sidebar category={category} onSelect={selectCategory} recent={recent} onOpen={openEntry} />
 
-        <main id="main-content" className="main-content">
-          {view === 'library' ? (
-            <LibraryView
-              category={category}
-              level={level}
-              setLevel={setLevel}
-              setQuery={setQuery}
-              entries={filtered}
-              bookmarks={bookmarks}
-              onOpen={openEntry}
-              onBookmark={toggleBookmark}
-            />
-          ) : view === 'tables' ? (
-            <TablesView />
-          ) : (
-            <ToolsView />
-          )}
-        </main>
+          <main id="main-content" className="main-content">
+            {view === 'library' ? (
+              <LibraryView
+                category={category}
+                level={level}
+                setLevel={setLevel}
+                setQuery={setQuery}
+                entries={filtered}
+                bookmarks={bookmarks}
+                onOpen={openEntry}
+                onBookmark={toggleBookmark}
+              />
+            ) : view === 'tables' ? (
+              <TablesView />
+            ) : (
+              <ToolsView />
+            )}
+          </main>
 
-        <aside className="right-rail" aria-label="今日历法">
-          <AlmanacCard />
-          <QuickReference />
-        </aside>
-      </div>
+          <aside className="right-rail" aria-label="今日历法">
+            <AlmanacCard />
+            <QuickReference />
+          </aside>
+        </div>
+      )}
 
       <footer className="site-footer">
         <span>玄枢资料工作台</span>
@@ -201,15 +248,7 @@ function App() {
           onSelect={selectCategory}
           close={() => setMobileOpen(false)}
           view={view}
-          setView={(next) => { setView(next); setMobileOpen(false) }}
-        />
-      )}
-      {selectedEntry && (
-        <EntryDrawer
-          entry={selectedEntry}
-          bookmarked={bookmarks.includes(selectedEntry.id)}
-          onBookmark={() => toggleBookmark(selectedEntry.id)}
-          onClose={() => setSelectedEntry(null)}
+          setView={(next) => { changeView(next); setMobileOpen(false) }}
         />
       )}
       {legal && <LegalDialog type={legal} onClose={() => setLegal(null)} />}
@@ -610,7 +649,7 @@ function humanizeKey(key: string) {
   return labels[key] || key.replace(/([a-z])([A-Z])/g, '$1 $2')
 }
 
-function EntryDrawer({ entry, bookmarked, onBookmark, onClose }: {
+function ArticlePage({ entry, bookmarked, onBookmark, onClose }: {
   entry: ReferenceEntry
   bookmarked: boolean
   onBookmark: () => void
@@ -619,41 +658,53 @@ function EntryDrawer({ entry, bookmarked, onBookmark, onClose }: {
   const pack = knowledgePacks[entry.category]
   const sectionCount = entry.sections.length + pack.blocks.length + 2
   const detailedReadTime = entry.readTime + pack.blocks.length * 3
+  const jumpToSection = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault()
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   return (
-    <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-      <article className="entry-drawer" role="dialog" aria-modal="true" aria-labelledby="entry-title">
-        <div className="drawer-actions">
+    <main id="main-content" className="article-page">
+      <section className="article-hero" aria-labelledby="entry-title">
+        <div className="article-page-inner">
+          <div className="article-actions">
           <button className="back-button" type="button" onClick={onClose}><ArrowLeft size={18} />返回资料库</button>
           <button className="icon-button" type="button" onClick={onBookmark} aria-label={bookmarked ? '取消收藏' : '收藏资料'}><BookmarkSimple size={20} weight={bookmarked ? 'fill' : 'regular'} /></button>
-        </div>
-        <header>
+          </div>
+          <header>
           <p className="eyebrow">{entry.school} · {entry.level} · 深度资料</p>
           <h1 id="entry-title">{entry.title}</h1>
           <p>{entry.summary}</p>
           <div className="tag-row">{entry.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
           <div className="article-metrics"><span>{sectionCount} 个章节</span><span>约 {detailedReadTime} 分钟</span><span>{pack.references.length + 1} 组参考来源</span></div>
-        </header>
-        <div className="source-box"><b>条目来源</b><span>{entry.source}</span><small>不同版本与传承可能存在术语差异，引用时请核对原文。</small></div>
+          </header>
+        </div>
+      </section>
 
-        <section className="knowledge-overview">
-          <p className="eyebrow">{pack.label}</p>
-          <h2>先建立完整坐标，再进入单项判断</h2>
-          <p>{pack.overview}</p>
-        </section>
-
-        <nav className="article-index" aria-label="文章目录">
+      <div className="article-layout">
+        <aside className="article-toc">
+          <nav className="article-index" aria-label="文章目录">
           <b>本页目录</b>
           <div>
-            {entry.sections.map((section, index) => <a key={section.heading} href={`#entry-section-${index}`}>{String(index + 1).padStart(2, '0')} {section.heading}</a>)}
-            <a href="#entry-terms">{String(entry.sections.length + 1).padStart(2, '0')} 核心术语</a>
-            {pack.blocks.map((block, index) => <a key={block.heading} href={`#knowledge-section-${index}`}>{String(entry.sections.length + index + 2).padStart(2, '0')} {block.heading}</a>)}
-            <a href="#entry-references">{String(sectionCount).padStart(2, '0')} 参考书目</a>
+            {entry.sections.map((section, index) => <a key={section.heading} href={`#entry-section-${index}`} onClick={(event) => jumpToSection(event, `entry-section-${index}`)}>{String(index + 1).padStart(2, '0')} {section.heading}</a>)}
+            <a href="#entry-terms" onClick={(event) => jumpToSection(event, 'entry-terms')}>{String(entry.sections.length + 1).padStart(2, '0')} 核心术语</a>
+            {pack.blocks.map((block, index) => <a key={block.heading} href={`#knowledge-section-${index}`} onClick={(event) => jumpToSection(event, `knowledge-section-${index}`)}>{String(entry.sections.length + index + 2).padStart(2, '0')} {block.heading}</a>)}
+            <a href="#entry-references" onClick={(event) => jumpToSection(event, 'entry-references')}>{String(sectionCount).padStart(2, '0')} 参考书目</a>
           </div>
-        </nav>
+          </nav>
+        </aside>
 
-        <div className="entry-sections">
+        <article className="article-content">
+          <div className="source-box"><b>条目来源</b><span>{entry.source}</span><small>不同版本与传承可能存在术语差异，引用时请核对原文。</small></div>
+
+          <section className="knowledge-overview">
+            <p className="eyebrow">{pack.label}</p>
+            <h2>先建立完整坐标，再进入单项判断</h2>
+            <p>{pack.overview}</p>
+          </section>
+
+          <div className="entry-sections">
           {entry.sections.map((section, index) => <section id={`entry-section-${index}`} key={section.heading}><span>{String(index + 1).padStart(2, '0')}</span><div><h2>{section.heading}</h2><p>{section.body}</p></div></section>)}
-        </div>
+          </div>
 
         <section className="terms-section" id="entry-terms">
           <div className="article-section-heading"><span>{String(entry.sections.length + 1).padStart(2, '0')}</span><div><p className="eyebrow">术语表</p><h2>先把关键词说清楚</h2></div></div>
@@ -669,9 +720,10 @@ function EntryDrawer({ entry, bookmarked, onBookmark, onClose }: {
           <ol><li>{entry.source}</li>{pack.references.map((reference) => <li key={reference}>{reference}</li>)}</ol>
           <p>书名只提供检索线索。正式引用时应补充版本、卷次、页码或稳定链接。</p>
         </section>
-        <aside className="entry-boundary"><b>使用边界</b><p>本条目用于学习、检索和咨询记录，不构成确定性预测。涉及健康、安全、法律与重大财务决策时，应优先采用相应专业意见。</p></aside>
-      </article>
-    </div>
+          <aside className="entry-boundary"><b>使用边界</b><p>本条目用于学习、检索和咨询记录，不构成确定性预测。涉及健康、安全、法律与重大财务决策时，应优先采用相应专业意见。</p></aside>
+        </article>
+      </div>
+    </main>
   )
 }
 
