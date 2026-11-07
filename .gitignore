@@ -20,3 +20,15 @@ Thumbs.db
 .idea/
 .vscode/
 *.tsbuildinfo
+desktop-server/node_modules/
+desktop-server/server.mjs
+desktop-server/book-catalog.mjs
+desktop-server/discovered-books.mjs
+desktop-server/xunlan/
+src-tauri/binaries/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/icons/*
+!src-tauri/icons/32x32.png
+!src-tauri/icons/128x128.png
+!src-tauri/icons/icon.ico

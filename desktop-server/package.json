@@ -1,0 +1,11 @@
+{
+  "name": "xiaojianzhini-desktop-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.1.0",
+    "smol-toml": "^1.9.1",
+    "taibu-core": "^4.0.0"
+  }
+}

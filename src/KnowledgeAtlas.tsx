@@ -29,7 +29,7 @@ export default function KnowledgeAtlas({ onExplore }: { onExplore: (category: Ca
       <header className="atlas-intro">
         <div>
           <p className="eyebrow">知识总纲 · 逐项核查</p>
-          <h1>全典不是一句“都有”，而是每一项都能找到</h1>
+          <h1>知识体系总纲</h1>
           <p>十二大体系按有限集合、流派分支、原典来源和计算能力分层。完整集合逐项收录，开放体系持续补充版本和注疏，缺口明确显示。</p>
         </div>
         <dl>
@@ -40,14 +40,8 @@ export default function KnowledgeAtlas({ onExplore }: { onExplore: (category: Ca
         </dl>
       </header>
 
-      <div className="atlas-principles">
-        <article><CheckCircle size={22} weight="duotone" /><div><h2>有限集合逐项齐全</h2><p>有固定数量的基础坐标按全集管理，不用几篇概述代替完整表。</p></div></article>
-        <article><GitBranch size={22} weight="duotone" /><div><h2>流派并列而非揉合</h2><p>三合、玄空、格局、飞星等规则分别标注来源，冲突处保留不同口径。</p></div></article>
-        <article><WarningCircle size={22} weight="duotone" /><div><h2>开放文献不虚报完成</h2><p>历代注疏和地方传承无法封顶，网站公开边界，并按版本持续扩展。</p></div></article>
-      </div>
-
       <section className="atlas-section">
-        <div className="atlas-heading"><div><p className="eyebrow">十二大体系</p><h2>知识覆盖总目录</h2></div><span>每个体系可进入全文资料库</span></div>
+        <div className="atlas-heading"><div><h2>知识覆盖总目录</h2></div><span>每个体系可进入全文资料库</span></div>
         <div className="atlas-systems">
           {systemScopes.map((system) => {
             const meta = categories.find((item) => item.id === system.category)!
@@ -64,6 +58,12 @@ export default function KnowledgeAtlas({ onExplore }: { onExplore: (category: Ca
             )
           })}
         </div>
+      </section>
+
+      <section className="atlas-principles" aria-label="收录原则">
+        <article><CheckCircle size={22} weight="duotone" /><div><h2>有限集合逐项齐全</h2><p>有固定数量的基础坐标按全集管理，不用几篇概述代替完整表。</p></div></article>
+        <article><GitBranch size={22} weight="duotone" /><div><h2>流派并列而非揉合</h2><p>三合、玄空、格局、飞星等规则分别标注来源，冲突处保留不同口径。</p></div></article>
+        <article><WarningCircle size={22} weight="duotone" /><div><h2>开放文献不虚报完成</h2><p>历代注疏和地方传承无法封顶，网站公开边界，并按版本持续扩展。</p></div></article>
       </section>
 
       <section className="atlas-section atlas-engines">

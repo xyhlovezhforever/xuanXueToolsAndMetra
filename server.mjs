@@ -6,9 +6,14 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import https from 'node:https'
 import { bookCatalog } from './book-catalog.mjs'
+import { hexagramAnalysisMiddleware, xiaoliurenAnalysisMiddleware } from './xunlan/server/hexagram-analysis.js'
 
 const app = express()
-const port = Number(process.env.PORT || 8787)
+const portArgument = process.argv.indexOf('--port')
+const port = Number(portArgument < 0 ? (process.env.PORT ?? 8787) : process.argv[portArgument + 1])
+if (!Number.isInteger(port) || port < 0 || port > 65535) {
+  throw new Error('Invalid API port')
+}
 const root = dirname(fileURLToPath(import.meta.url))
 const supportedTools = new Set([
   'astrology',
@@ -33,7 +38,7 @@ function requestJson(url, family = 6) {
   return new Promise((resolve, reject) => {
     const request = https.get(url, {
       family,
-      headers: { 'User-Agent': 'XuanshuStudio/0.1 (public-domain study reader)' },
+      headers: { 'User-Agent': 'XiaojianzhiniStudio/0.1 (public-domain study reader)' },
     }, (upstream) => {
       if (upstream.statusCode !== 200) {
         upstream.resume()
@@ -67,6 +72,8 @@ async function fetchPublicText(url) {
   }
 }
 
+app.use('/api/hexagram-analysis', hexagramAnalysisMiddleware)
+app.use('/api/xiaoliuren-analysis', xiaoliurenAnalysisMiddleware)
 app.use(express.json({ limit: '256kb' }))
 
 app.get('/api/health', (_request, response) => {
@@ -210,12 +217,15 @@ app.post('/api/divination/:tool', async (request, response) => {
   }
 })
 
-const dist = join(root, 'dist')
+const dist = process.env.XJZ_STATIC_DIR || join(root, 'dist')
 if (existsSync(dist)) {
   app.use(express.static(dist))
   app.get('*splat', (_request, response) => response.sendFile(join(dist, 'index.html')))
 }
 
-app.listen(port, '127.0.0.1', () => {
-  console.log(`Xuanshu API listening on http://127.0.0.1:${port}`)
+const server = app.listen(port, '127.0.0.1', () => {
+  const address = server.address()
+  const actualPort = typeof address === 'object' && address ? address.port : port
+  console.log(`Xiaojianzhini API listening on http://127.0.0.1:${actualPort}`)
+  if (process.env.XJZ_DESKTOP === '1') console.log(`XJZ_READY:${actualPort}`)
 })

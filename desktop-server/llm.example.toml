@@ -1,0 +1,20 @@
+# Copy of this template is created in the desktop app's config directory as llm.toml.
+# Add the provider you use. Keys remain on this computer.
+
+[llm.alibaba]
+api_key = ""
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+[llm.alibaba.model_map]
+fast = "qwen-turbo"
+balanced = "qwen-plus"
+quality = "qwen-max"
+
+[llm.deepseek]
+api_key = ""
+base_url = "https://api.deepseek.com/v1"
+
+[llm.deepseek.model_map]
+fast = "deepseek-chat"
+balanced = "deepseek-chat"
+quality = "deepseek-reasoner"

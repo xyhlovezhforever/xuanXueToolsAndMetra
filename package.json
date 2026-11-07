@@ -1,5 +1,5 @@
 {
-  "name": "xuanshu-studio",
+  "name": "xiaojianzhini-studio",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -7,20 +7,30 @@
     "dev": "concurrently -k \"vite --host 0.0.0.0\" \"node --watch server.mjs\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test:unit": "node --test xunlan/src/hexagram-calculator.test.js xunlan/src/xiaoliuren-calculator.test.js xunlan/server/hexagram-analysis.test.js xunlan/server/xiaoliuren-analysis.test.js",
     "sync:books": "node scripts/sync-public-books.mjs",
     "test:ui": "playwright test",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build",
+    "desktop:dev-server": "node scripts/prepare-desktop.mjs --runtime-only && concurrently -k \"vite --host 127.0.0.1 --port 5174 --strictPort --mode desktop\" \"node server.mjs --port 8788\"",
+    "desktop:prepare": "npm run build && node scripts/prepare-desktop.mjs && npm ci --omit=dev --prefix desktop-server",
+    "test:desktop-server": "node --test scripts/desktop-server.test.mjs",
     "start": "node server.mjs"
   },
   "dependencies": {
+    "@fontsource/noto-serif-sc": "^5.3.1",
     "@phosphor-icons/react": "^2.1.10",
     "express": "^5.1.0",
+    "lucide-react": "^0.468.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "smol-toml": "^1.9.1",
     "taibu-core": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.64.1",
+    "@tauri-apps/cli": "^2.12.4",
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.16",
