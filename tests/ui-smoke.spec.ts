@@ -66,7 +66,7 @@ test('资料检索、详情与排盘链路可用', async ({ page }, testInfo) =>
     await page.getByRole('button', { name: '打开导航' }).click()
     await page.getByRole('dialog', { name: '移动导航' }).getByRole('button', { name: '排盘工具' }).click()
   } else {
-    await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具' }).click()
+    await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具', exact: true }).click()
   }
 
   await expect(page.getByRole('heading', { name: '排盘工具' })).toBeVisible()

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>独立游戏</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; display: grid; grid-template-rows: minmax(0, 1fr) auto; background: #161d1c; color: #f3f6f3; font: 16px/1.5 system-ui, sans-serif; }
+      main { min-height: 0; display: grid; place-items: center; overflow: hidden; }
+      img { max-width: 100%; max-height: 100%; object-fit: contain; }
+      footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-top: 1px solid #44504d; }
+      strong { font-size: 18px; }
+      button { min-width: 108px; min-height: 42px; border: 1px solid #94c3ae; border-radius: 4px; background: #94c3ae; color: #17201b; font: inherit; font-weight: 700; cursor: pointer; }
+      button:disabled { opacity: .6; cursor: wait; }
+      #status { color: #cad4ce; font-size: 14px; }
+      @media (max-width: 560px) { footer { flex-wrap: wrap; } }
+    </style>
+  </head>
+  <body>
+    <main><img id="preview" alt="游戏预览" /></main>
+    <footer><div><strong id="title"></strong><div id="status">Windows 独立游戏</div></div><button id="launch" type="button">启动游戏</button></footer>
+    <script>
+      const games = { 'midnight-dispatch': '午夜分拣台', 'star-lantern-trial': '星灯试炼' }
+      const id = new URLSearchParams(location.search).get('tool')
+      const button = document.querySelector('#launch')
+      if (!Object.hasOwn(games, id)) {
+        document.querySelector('#status').textContent = '未找到游戏'
+        button.disabled = true
+      } else {
+        document.title = games[id]
+        document.querySelector('#title').textContent = games[id]
+        document.querySelector('#preview').src = `/api/embedded-tools/${id}/preview`
+        button.addEventListener('click', async () => {
+          button.disabled = true
+          document.querySelector('#status').textContent = '正在启动…'
+          try {
+            const response = await fetch(`/api/embedded-tools/${id}/start`, { method: 'POST' })
+            const data = await response.json()
+            if (!response.ok) throw new Error(data.error || '启动失败')
+            document.querySelector('#status').textContent = '游戏已在独立窗口打开'
+          } catch (error) {
+            document.querySelector('#status').textContent = error.message
+          } finally {
+            button.disabled = false
+          }
+        })
+      }
+    </script>
+  </body>
+</html>

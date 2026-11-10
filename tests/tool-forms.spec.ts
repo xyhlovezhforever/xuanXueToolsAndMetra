@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 async function openTools(page: import('@playwright/test').Page) {
   await page.goto('/')
-  await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具' }).click()
+  await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具', exact: true }).click()
   await expect(page.getByRole('heading', { name: '排盘工具' })).toBeVisible()
   await expect(page.getByRole('group', { name: '参数输入方式' })).toBeVisible()
 }

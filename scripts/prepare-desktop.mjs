@@ -13,6 +13,7 @@ console.log(`Desktop Node runtime: ${basename(runtime)}`)
 if (!process.argv.includes('--runtime-only')) {
   for (const file of [
     'server.mjs',
+    'embedded-tools.mjs',
     'book-catalog.mjs',
     'discovered-books.mjs',
     'xunlan/server/hexagram-analysis.js',

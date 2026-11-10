@@ -15,6 +15,7 @@
     "desktop:dev-server": "node scripts/prepare-desktop.mjs --runtime-only && concurrently -k \"vite --host 127.0.0.1 --port 5174 --strictPort --mode desktop\" \"node server.mjs --port 8788\"",
     "desktop:prepare": "npm run build && node scripts/prepare-desktop.mjs && npm ci --omit=dev --prefix desktop-server",
     "test:desktop-server": "node --test scripts/desktop-server.test.mjs",
+    "test:embedded-tools": "node --test scripts/embedded-tools.test.mjs",
     "start": "node server.mjs"
   },
   "dependencies": {

@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path'
 import https from 'node:https'
 import { bookCatalog } from './book-catalog.mjs'
 import { hexagramAnalysisMiddleware, xiaoliurenAnalysisMiddleware } from './xunlan/server/hexagram-analysis.js'
+import { embeddedGamePreview, embeddedToolStatus, startEmbeddedTool, stopAllEmbeddedTools } from './embedded-tools.mjs'
 
 const app = express()
 const portArgument = process.argv.indexOf('--port')
@@ -78,6 +79,40 @@ app.use(express.json({ limit: '256kb' }))
 
 app.get('/api/health', (_request, response) => {
   response.json({ ok: true, engine: 'taibu-core', version: '4.0.0' })
+})
+
+if (process.env.XJZ_DESKTOP === '1') {
+  app.post('/api/desktop/shutdown', (request, response) => {
+    if (request.socket.remoteAddress !== '127.0.0.1') return response.status(403).end()
+    stopAllEmbeddedTools()
+    return response.json({ ok: true })
+  })
+}
+
+app.get('/api/embedded-tools/:id', (request, response) => {
+  const status = embeddedToolStatus(request.params.id)
+  return status ? response.json(status) : response.status(404).json({ error: '未知工具' })
+})
+
+app.post('/api/embedded-tools/:id/start', async (request, response) => {
+  try {
+    const origin = request.headers.origin
+    if (origin && new URL(origin).host !== request.headers.host) {
+      return response.status(403).json({ error: '请求来源不正确' })
+    }
+    return response.json(await startEmbeddedTool(request.params.id))
+  } catch (error) {
+    return response.status(503).json({ error: error instanceof Error ? error.message : '工具启动失败' })
+  }
+})
+
+app.get('/api/embedded-tools/:id/preview', async (request, response) => {
+  try {
+    const preview = await embeddedGamePreview(request.params.id)
+    return preview ? response.type('png').send(preview) : response.status(404).end()
+  } catch {
+    return response.status(404).end()
+  }
 })
 
 app.get('/api/tools', (_request, response) => {

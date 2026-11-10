@@ -7,8 +7,8 @@ test('合并后的资料、工具与生活板块可用', async ({ page }) => {
   await page.goto('/')
 
   const primary = page.getByRole('navigation', { name: '主要板块' })
-  for (const name of ['资料', '工具', '心流', '断舍离', '现代风水', '情绪周边设计', '共同学习进步']) {
-    await expect(primary.getByRole('button', { name })).toBeVisible()
+  for (const name of ['资料', '工具', '自制工具', '心流', '断舍离', '现代风水', '情绪周边设计', '共同学习进步']) {
+    await expect(primary.getByRole('button', { name, exact: true })).toBeVisible()
   }
 
   const formats = page.getByRole('navigation', { name: '资料形式' })
@@ -19,7 +19,7 @@ test('合并后的资料、工具与生活板块可用', async ({ page }) => {
   await page.getByRole('navigation', { name: '图解专题' }).getByRole('button', { name: '塔罗全牌' }).click()
   await expect(page.frameLocator('.xunlan-frame').getByRole('heading', { name: '塔罗全套 78 张' })).toBeVisible()
 
-  await primary.getByRole('button', { name: '工具' }).click()
+  await primary.getByRole('button', { name: '工具', exact: true }).click()
   await page.getByRole('navigation', { name: '工具分类' }).getByRole('button', { name: '数字起卦' }).click()
   const casting = page.frameLocator('.xunlan-frame')
   await casting.getByRole('textbox', { name: '下卦，三位数字' }).fill('008')
@@ -33,23 +33,36 @@ test('合并后的资料、工具与生活板块可用', async ({ page }) => {
   await page.getByRole('button', { name: '开始专注' }).click()
   await expect(page.getByRole('button', { name: '暂停' })).toBeVisible()
   await page.getByRole('button', { name: '暂停' }).click()
+  await page.getByPlaceholder('先记下，专注结束后再处理').fill('回复消息')
+  await page.getByRole('button', { name: '记下' }).click()
+  await expect(page.getByText('回复消息')).toBeVisible()
+  await page.getByText('先定义一个可完成的任务').click()
+  await expect(page.getByText('把“写方案”改成“完成方案的目录和第一节草稿”。')).toBeVisible()
 
   await primary.getByRole('button', { name: '断舍离' }).click()
   await page.getByPlaceholder('例如：整理桌面文件').fill('整理书桌')
   await page.getByRole('button', { name: '添加' }).click()
   await expect(page.getByText('整理书桌')).toBeVisible()
+  await page.getByPlaceholder('例如：备用台灯').fill('闲置花瓶')
+  await page.getByRole('button', { name: '加入整理清单' }).click()
+  await expect(page.getByText(/闲置花瓶：考虑转赠/)).toBeVisible()
 
   await primary.getByRole('button', { name: '现代风水' }).click()
   await page.getByRole('button', { name: '卧室' }).click()
   await expect(page.getByText('夜间光线可调暗')).toBeVisible()
+  await page.getByPlaceholder('写下观察时间、问题位置和试过的调整').fill('夜间窗边有噪声')
+  await expect(page.locator('.life-progress')).toHaveAttribute('max', '3')
 
   await primary.getByRole('button', { name: '情绪周边设计' }).click()
   await page.getByPlaceholder('给想法起一个名字').fill('平静卡片')
   await page.getByRole('button', { name: '保存想法' }).click()
   await expect(page.getByRole('heading', { name: '平静卡片' })).toBeVisible()
+  await expect(page.getByRole('region', { name: '配色试验' }).locator('input[type="color"]')).toHaveCount(2)
 
   await primary.getByRole('button', { name: '共同学习进步' }).click()
   await page.getByPlaceholder('记录一个发现、问题或下一步').fill('本周一起读资料')
+  await page.getByPlaceholder('一个具体问题').fill('如何核对资料来源')
+  await expect(page.getByRole('region', { name: '实践资料' }).locator('details')).toHaveCount(3)
   await expect(page.getByRole('button', { name: '复制学习进度' })).toBeVisible()
   await page.reload()
   await primary.getByRole('button', { name: '共同学习进步' }).click()
@@ -105,7 +118,7 @@ test('浏览器同源的 AI 请求通过开发代理的来源校验', async ({ p
 
 test('工具中的小六壬可速起并查看手掌图', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具' }).click()
+  await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具', exact: true }).click()
   await page.getByRole('navigation', { name: '工具分类' }).getByRole('button', { name: '小六壬速起' }).click()
   const tool = page.frameLocator('.xunlan-frame')
   await expect(tool.getByRole('heading', { name: '当前时间快速起卦' })).toBeVisible()
@@ -121,7 +134,7 @@ test('小六壬速起结果可请求 AI 分析', async ({ page }) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ analysis: '先核对信息，再决定下一步。', model: 'test-model' }) })
   })
   await page.goto('/')
-  await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具' }).click()
+  await page.getByRole('navigation', { name: '主要板块' }).getByRole('button', { name: '工具', exact: true }).click()
   await page.getByRole('navigation', { name: '工具分类' }).getByRole('button', { name: '小六壬速起' }).click()
   const tool = page.frameLocator('.xunlan-frame')
   await tool.getByRole('button', { name: '立即起卦' }).click()

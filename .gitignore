@@ -22,6 +22,7 @@ Thumbs.db
 *.tsbuildinfo
 desktop-server/node_modules/
 desktop-server/server.mjs
+desktop-server/embedded-tools.mjs
 desktop-server/book-catalog.mjs
 desktop-server/discovered-books.mjs
 desktop-server/xunlan/

@@ -1,6 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::fs;
+use std::io::{Read, Write};
+use std::net::{SocketAddr, TcpStream};
 use std::sync::Mutex;
 use std::time::Duration;
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
@@ -63,7 +65,7 @@ fn main() {
                         return Err(format!("Desktop API did not start: {error}").into());
                     }
                 };
-                app.manage(Mutex::new(Some(child)));
+                app.manage(Mutex::new(Some((child, port))));
                 WebviewUrl::External(format!("http://127.0.0.1:{port}").parse()?)
             };
 
@@ -79,8 +81,16 @@ fn main() {
         .expect("failed to build desktop app")
         .run(|app, event| {
             if let tauri::RunEvent::Exit = event {
-                if let Some(child) = app.try_state::<Mutex<Option<CommandChild>>>() {
-                    if let Some(child) = child.lock().expect("sidecar lock").take() {
+                if let Some(backend) = app.try_state::<Mutex<Option<(CommandChild, u16)>>>() {
+                    if let Some((child, port)) = backend.lock().expect("sidecar lock").take() {
+                        if let Ok(address) = format!("127.0.0.1:{port}").parse::<SocketAddr>() {
+                            if let Ok(mut stream) = TcpStream::connect_timeout(&address, Duration::from_secs(2)) {
+                                let _ = stream.set_read_timeout(Some(Duration::from_secs(3)));
+                                let _ = stream.write_all(b"POST /api/desktop/shutdown HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+                                let mut response = [0; 256];
+                                let _ = stream.read(&mut response);
+                            }
+                        }
                         let _ = child.kill();
                     }
                 }

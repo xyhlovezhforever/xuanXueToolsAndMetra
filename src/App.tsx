@@ -29,10 +29,11 @@ import KnowledgeAtlas from './KnowledgeAtlas'
 import BooksView from './BooksView'
 import WorkspaceViews, { type LifeView } from './WorkspaceViews'
 import ToolForm, { type ToolDefinition } from './ToolForm'
+import EmbeddedToolsView from './EmbeddedToolsView'
 
 type XunlanView = 'xunlan-bagua' | 'xunlan-hexagrams' | 'xunlan-xiaoliuren' | 'xunlan-xiaoliuren-tool' | 'xunlan-tarot' | 'xunlan-casting'
-type View = 'library' | 'atlas' | 'books' | 'tables' | 'tools' | XunlanView | LifeView
-type PrimaryTab = 'reference' | 'tool' | LifeView
+type View = 'library' | 'atlas' | 'books' | 'tables' | 'tools' | 'embedded-tools' | XunlanView | LifeView
+type PrimaryTab = 'reference' | 'tool' | 'embedded-tools' | LifeView
 type LegalDocument = 'privacy' | 'terms' | null
 type ToolId = string
 
@@ -83,6 +84,7 @@ const lifeViews: LifeView[] = ['flow', 'declutter', 'fengshui', 'emotion', 'lear
 
 function primaryTab(view: View): PrimaryTab {
   if (lifeViews.includes(view as LifeView)) return view as LifeView
+  if (view === 'embedded-tools') return 'embedded-tools'
   return view === 'tools' || view === 'xunlan-casting' || view === 'xunlan-xiaoliuren-tool' ? 'tool' : 'reference'
 }
 
@@ -234,6 +236,7 @@ function App() {
         {([
           ['reference', '资料', BookOpenText, 'library'],
           ['tool', '工具', Wrench, 'tools'],
+          ['embedded-tools', '自制工具', Database, 'embedded-tools'],
           ['flow', '心流', Timer, 'flow'],
           ['declutter', '断舍离', Broom, 'declutter'],
           ['fengshui', '现代风水', House, 'fengshui'],
@@ -280,6 +283,8 @@ function App() {
               <TablesView />
             ) : view === 'tools' ? (
               <ToolsView />
+            ) : view === 'embedded-tools' ? (
+              <EmbeddedToolsView />
             ) : view.startsWith('xunlan-') ? (
               <XunlanFrame section={view === 'xunlan-xiaoliuren-tool' ? 'xiaoliuren' : view.slice(7)} toolFocus={view === 'xunlan-xiaoliuren-tool'} />
             ) : (
@@ -811,6 +816,10 @@ function MobileMenu({ category, onSelect, close, view, setView }: {
       <div className="mobile-menu-section-title">工具</div>
       <div className="mobile-view-switch">
         {toolTabs.map((item) => <button key={item.view} className={view === item.view ? 'active' : ''} onClick={() => setView(item.view)} type="button">{item.label}</button>)}
+      </div>
+      <div className="mobile-menu-section-title">自制工具</div>
+      <div className="mobile-view-switch">
+        <button className={view === 'embedded-tools' ? 'active' : ''} onClick={() => setView('embedded-tools')} type="button">打开自制工具</button>
       </div>
       <div className="mobile-menu-section-title">资料门类</div>
       <nav aria-label="资料门类">
