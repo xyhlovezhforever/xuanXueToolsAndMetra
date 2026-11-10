@@ -1,6 +1,6 @@
 [package]
 name = "xiaojianzhini-studio"
-version = "0.1.0"
+version = "0.1.1"
 description = "小渐知你资料工具与成长工作台"
 authors = ["Xiaojianzhini"]
 edition = "2021"
